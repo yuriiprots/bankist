@@ -1,6 +1,8 @@
 "use strict";
 
 const labelWelcome = document.querySelector(".welcome");
+const labelBalance = document.querySelector(".balance__value");
+const labelDate = document.querySelector(".date");
 
 const containerApp = document.querySelector(".app");
 const containerMovements = document.querySelector(".movements");
@@ -58,3 +60,14 @@ const displayWelcomeMessage = function (owner) {
 };
 
 const displayUI = () => (containerApp.style.opacity = 1);
+
+const updateUI = function (account) {
+  // updateCurrentDate();
+  calculateUserBalance(account.movements);
+  // displayMovements(account.movements);
+};
+
+const calculateUserBalance = function (movements) {
+  let userBalance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${userBalance} €`;
+};
