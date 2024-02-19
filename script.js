@@ -1,5 +1,7 @@
 "use strict";
 
+const labelWelcome = document.querySelector(".welcome");
+
 const containerApp = document.querySelector(".app");
 const containerMovements = document.querySelector(".movements");
 
@@ -20,45 +22,39 @@ const account2 = {
   pin: 2222,
 };
 
-btnLogin.addEventListener("click", (event) => {
-  event.preventDefault();
-  signIn(inputLoginUsername.value, inputLoginPin.value);
-});
-
 const accounts = [account1, account2];
 
-function signIn(nickname, pin) {
-  let user = checkNickname(nickname);
-  let result = checkPin(user, pin);
+btnLogin.addEventListener("click", (event) => {
+  event.preventDefault();
+  signIn(inputLoginUsername.value, Number(inputLoginPin.value));
+});
 
-  if (result) {
-    containerApp.style.opacity = 1;
-    console.log("Login successful!"); // Add this for debugging
-  } else {
-    console.log("Login failed!"); // Add this for debugging
-  }
+const createUsernames = (function (accs) {
+  accs.forEach((acc) => {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(" ")
+      .map((name) => name[0])
+      .join("");
+  });
+})(accounts);
+
+function signIn(username, pin) {
+  accounts.forEach((account) => {
+    if (username === account.username && pin === account.pin) {
+      displayWelcomeMessage(account.owner);
+      displayUI();
+      //updateUI(account);
+      console.log("Login successful!");
+    }
+  });
   inputLoginUsername.value = "";
   inputLoginPin.value = "";
 }
 
-function checkNickname(nickname) {
-  let resultMain = "";
-  accounts.forEach((account) => {
-    const match = account.owner.match(/[A-Z]/g);
-    const result = match ? match.slice(0, 2).join("").toLowerCase() : "";
-    if (nickname === result) {
-      resultMain = account.owner;
-    }
-  });
-  return resultMain;
-}
+const displayWelcomeMessage = function (owner) {
+  let name = owner.split(" ")[0];
+  labelWelcome.textContent = `Welcome, ${name}!`;
+};
 
-function checkPin(user, pin) {
-  let result = false;
-  accounts.forEach((account) => {
-    if (user === account.owner && Number(pin) === account.pin) {
-      result = true;
-    }
-  });
-  return result;
-}
+const displayUI = () => (containerApp.style.opacity = 1);
