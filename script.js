@@ -23,12 +23,14 @@ const account1 = {
   owner: "Yurii Prots",
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   pin: 1111,
+  interestRate: 1.2,
 };
 
 const account2 = {
   owner: "Sem Johanson",
-  movements: [],
+  movements: [3000, 345, -1300, 4500, 2345, 1000, 300, -200],
   pin: 2222,
+  interestRate: 1.5,
 };
 
 const accounts = [account1, account2];
@@ -88,7 +90,7 @@ const updateUI = function (account) {
   updateCurrentDate();
   calcDisplayBalance(account.movements);
   displayMovements(account.movements);
-  calcDisplaySummary(account.movements);
+  calcDisplaySummary(account);
 };
 
 const calcDisplayBalance = function (movements) {
@@ -107,20 +109,20 @@ const updateCurrentDate = function () {
   labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
 };
 
-const calcDisplaySummary = function (movements) {
-  const sumIn = movements
+const calcDisplaySummary = function (account) {
+  const sumIn = account.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `${sumIn} €`;
 
-  const sumOut = movements
+  const sumOut = account.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `${Math.abs(sumOut)} €`;
 
-  const interest = movements
+  const interest = account.movements
     .filter((mov) => mov > 0)
-    .map((deposit) => (deposit * 1.2) / 100)
+    .map((deposit) => (deposit * account.interestRate) / 100)
     .filter((int) => int >= 1)
     .reduce((acc, int) => acc + int, 0);
   labelSumInterest.textContent = `${interest} €`;
