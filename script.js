@@ -127,3 +127,23 @@ const displayMovements = function (movements) {
   });
 };
 
+let isSorted = false;
+const sortMovements = function (movements) {
+  if (!isSorted) {
+    const sortedArray = [...movements].sort((a, b) => a - b);
+    displayMovements(sortedArray);
+    isSorted = true;
+    return;
+  }
+  if (isSorted) {
+    console.log("sorted");
+    displayMovements(movements);
+    isSorted = false;
+  }
+};
+
+btnSort.addEventListener("click", () => {
+  sortMovements(account1.movements);
+});
+
+
