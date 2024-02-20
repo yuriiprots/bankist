@@ -146,4 +146,26 @@ btnSort.addEventListener("click", () => {
   sortMovements(account1.movements);
 });
 
+const doTransfer = function (sender, receiver, amount) {
+  accounts.forEach((acc) => {
+    if (acc.username === receiver) {
+      if (amount >= 0.01 && amount <= sender.balance) {
+        acc.movements.push(amount);
+        sender.movements.push(-amount);
+      }
+    }
+  });
+  inputTransferTo.value = "";
+  inputTransferAmount.value = "";
+  updateUI(sender);
+};
+
+btnTransfer.addEventListener("click", (event) => {
+  event.preventDefault();
+  doTransfer(
+    currentAccount,
+    inputTransferTo.value,
+    Number(inputTransferAmount.value)
+  );
+});
 
