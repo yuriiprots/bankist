@@ -65,20 +65,6 @@ function signIn(username, pin) {
   inputLoginPin.blur();
 }
 
-// function signIn(username, pin) {
-//   accounts.forEach((account) => {
-//     if (username === account.username && pin === account.pin) {
-//       currentAccount = account;
-//       displayWelcomeMessage(currentAccount.owner);
-//       displayUI();
-//       updateUI(currentAccount);
-//       console.log("Login successful!");
-//     }
-//   });
-//   inputLoginUsername.value = "";
-//   inputLoginPin.value = "";
-// }
-
 const displayWelcomeMessage = function (owner) {
   let name = owner.split(" ")[0];
   labelWelcome.textContent = `Welcome, ${name}!`;
@@ -88,15 +74,14 @@ const displayUI = () => (containerApp.style.opacity = 1);
 
 const updateUI = function (account) {
   updateCurrentDate();
-  calcDisplayBalance(account.movements);
+  calcDisplayBalance(account);
   displayMovements(account.movements);
   calcDisplaySummary(account);
 };
 
-const calcDisplayBalance = function (movements) {
-  const userBalance = movements.reduce((acc, mov) => acc + mov, 0);
-  currentAccount.balance = userBalance;
-  labelBalance.textContent = `${userBalance} €`;
+const calcDisplayBalance = function (account) {
+  account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${account.balance}€`;
 };
 
 const updateCurrentDate = function () {
@@ -161,27 +146,28 @@ btnSort.addEventListener("click", () => {
   sortMovements(account1.movements);
 });
 
-const doTransfer = function (senderAccount, receiverUsername, amount) {
-  let receiverAccount = accounts.find(
-    (acc) => acc.username === receiverUsername
-  );
-  console.log(receiverAccount);
-
-  if (receiverAccount && amount >= 0.01 && amount <= senderAccount.balance) {
-    receiverAccount.movements.push(amount);
+const doTransfer = function (currentAccount, receiverAccount, amount) {
+  if (
+    amount >= 0.01 &&
+    amount <= currentAccount.balance &&
+    currentAccount.username !== receiverAccount.username
+  ) {
+    currentAccount.movements.push(amount);
     senderAccount.movements.push(-amount);
   }
   inputTransferTo.value = "";
   inputTransferAmount.value = "";
-  updateUI(senderAccount);
+  updateUI(currentAccount);
 };
 
 btnTransfer.addEventListener("click", (event) => {
   event.preventDefault();
 
-  let receiverUsername = inputTransferTo.value;
-  let amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(
+    (acc) => acc.username === inputTransferTo.value
+  );
+  const amount = Number(inputTransferAmount.value);
 
-  if (receiverUsername && amount)
-    doTransfer(currentAccount, receiverUsername, amount);
+  if (receiverAccount && amount)
+    doTransfer(currentAccount, receiverAccount, amount);
 });
