@@ -13,11 +13,14 @@ const containerMovements = document.querySelector(".movements");
 const btnLogin = document.querySelector(".login__btn");
 const btnSort = document.querySelector(".btn--sort");
 const btnTransfer = document.querySelector(".form__btn--transfer");
+const btnClose = document.querySelector(".form__btn--close");
 
 const inputLoginUsername = document.querySelector(".login__input--user");
 const inputLoginPin = document.querySelector(".login__input--pin");
 const inputTransferTo = document.querySelector(".form__input--to");
 const inputTransferAmount = document.querySelector(".form__input--amount");
+const inputCloseUsername = document.querySelector(".form__input--user");
+const inputClosePin = document.querySelector(".form__input--pin");
 
 const account1 = {
   owner: "Yurii Prots",
@@ -33,7 +36,14 @@ const account2 = {
   interestRate: 1.5,
 };
 
-const accounts = [account1, account2];
+const account3 = {
+  owner: "Johan Schmidt",
+  movements: [3000, 345],
+  pin: 3333,
+  interestRate: 2.5,
+};
+
+const accounts = [account1, account2, account3];
 let currentAccount;
 
 btnLogin.addEventListener("click", (event) => {
@@ -71,6 +81,7 @@ const displayWelcomeMessage = function (owner) {
 };
 
 const displayUI = () => (containerApp.style.opacity = 1);
+const hideUI = () => (containerApp.style.opacity = 0);
 
 const updateUI = function (account) {
   updateCurrentDate();
@@ -170,4 +181,25 @@ btnTransfer.addEventListener("click", (event) => {
 
   if (receiverAccount && amount)
     doTransfer(currentAccount, receiverAccount, amount);
+});
+
+function closeAccount(closeAccountIndex, closePin) {
+  if (currentAccount?.pin == closePin) {
+    accounts.splice(closeAccountIndex, 1);
+  }
+}
+
+btnClose.addEventListener("click", (event) => {
+  event.preventDefault();
+  const closeAccountIndex = accounts.findIndex(
+    (acc) => acc.username === inputCloseUsername.value
+  );
+  const closePin = Number(inputClosePin.value);
+
+  if (closeAccountIndex >= 0 && closePin) {
+    closeAccount(closeAccountIndex, closePin);
+  }
+  inputCloseUsername.value = "";
+  inputClosePin.value = "";
+  hideUI();
 });
