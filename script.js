@@ -13,12 +13,14 @@ const containerMovements = document.querySelector(".movements");
 const btnLogin = document.querySelector(".login__btn");
 const btnSort = document.querySelector(".btn--sort");
 const btnTransfer = document.querySelector(".form__btn--transfer");
+const btnLoan = document.querySelector(".form__btn--loan");
 const btnClose = document.querySelector(".form__btn--close");
 
 const inputLoginUsername = document.querySelector(".login__input--user");
 const inputLoginPin = document.querySelector(".login__input--pin");
 const inputTransferTo = document.querySelector(".form__input--to");
 const inputTransferAmount = document.querySelector(".form__input--amount");
+const inputLoanAmount = document.querySelector(".form__input--loan-amount");
 const inputCloseUsername = document.querySelector(".form__input--user");
 const inputClosePin = document.querySelector(".form__input--pin");
 
@@ -183,16 +185,37 @@ btnTransfer.addEventListener("click", (event) => {
     doTransfer(currentAccount, receiverAccount, amount);
 });
 
+const requestLoan = function (currentAccount, amount) {
+  currentAccount.movements.push(amount);
+  updateUI(currentAccount);
+};
+
+btnLoan.addEventListener("click", (event) => {
+  event.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  if (
+    amount >= 0.01 &&
+    currentAccount.movements.some((mov) => mov >= amount * 0.1)
+  )
+    requestLoan(currentAccount, amount);
+
+  inputLoanAmount.value = "";
+});
+
 function closeAccount(currentAccount) {
- const index = accounts.findIndex((acc) => acc.username === currentAccount.username);
- accounts.splice(index, 1);
-  
+  const index = accounts.findIndex(
+    (acc) => acc.username === currentAccount.username
+  );
+  accounts.splice(index, 1);
 }
 
 btnClose.addEventListener("click", (event) => {
   event.preventDefault();
 
-  if (currentAccount.username === inputCloseUsername.value && currentAccount.pin === Number(inputClosePin.value)) {
+  if (
+    currentAccount.username === inputCloseUsername.value &&
+    currentAccount.pin === Number(inputClosePin.value)
+  ) {
     closeAccount(currentAccount);
   }
   inputCloseUsername.value = "";
