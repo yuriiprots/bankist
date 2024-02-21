@@ -183,21 +183,17 @@ btnTransfer.addEventListener("click", (event) => {
     doTransfer(currentAccount, receiverAccount, amount);
 });
 
-function closeAccount(closeAccountIndex, closePin) {
-  if (currentAccount?.pin == closePin) {
-    accounts.splice(closeAccountIndex, 1);
-  }
+function closeAccount(currentAccount) {
+ const index = accounts.findIndex((acc) => acc.username === currentAccount.username);
+ accounts.splice(index, 1);
+  
 }
 
 btnClose.addEventListener("click", (event) => {
   event.preventDefault();
-  const closeAccountIndex = accounts.findIndex(
-    (acc) => acc.username === inputCloseUsername.value
-  );
-  const closePin = Number(inputClosePin.value);
 
-  if (closeAccountIndex >= 0 && closePin) {
-    closeAccount(closeAccountIndex, closePin);
+  if (currentAccount.username === inputCloseUsername.value && currentAccount.pin === Number(inputClosePin.value)) {
+    closeAccount(currentAccount);
   }
   inputCloseUsername.value = "";
   inputClosePin.value = "";
