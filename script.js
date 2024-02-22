@@ -142,21 +142,14 @@ const displayMovements = function (movements) {
 
 let isSorted = false;
 const sortMovements = function (movements) {
-  if (!isSorted) {
-    const sortedArray = [...movements].sort((a, b) => a - b);
-    displayMovements(sortedArray);
-    isSorted = true;
-    return;
-  }
-  if (isSorted) {
-    console.log("sorted");
-    displayMovements(movements);
-    isSorted = false;
-  }
+  isSorted
+    ? displayMovements(movements)
+    : displayMovements(movements.slice().sort((a, b) => a - b));
 };
 
 btnSort.addEventListener("click", () => {
-  sortMovements(account1.movements);
+  sortMovements(currentAccount.movements);
+  isSorted = !isSorted;
 });
 
 const doTransfer = function (currentAccount, receiverAccount, amount) {
