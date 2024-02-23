@@ -50,7 +50,7 @@ let currentAccount;
 
 btnLogin.addEventListener("click", (event) => {
   event.preventDefault();
-  signIn(inputLoginUsername.value, Number(inputLoginPin.value));
+  signIn(inputLoginUsername.value, +inputLoginPin.value);
 });
 
 const createUsernames = (function (accs) {
@@ -172,7 +172,7 @@ btnTransfer.addEventListener("click", (event) => {
   const receiverAccount = accounts.find(
     (acc) => acc.username === inputTransferTo.value
   );
-  const amount = Number(inputTransferAmount.value);
+  const amount = +inputTransferAmount.value;
 
   if (receiverAccount && amount)
     doTransfer(currentAccount, receiverAccount, amount);
@@ -185,7 +185,7 @@ const requestLoan = function (currentAccount, amount) {
 
 btnLoan.addEventListener("click", (event) => {
   event.preventDefault();
-  const amount = Number(inputLoanAmount.value);
+  const amount = +inputLoanAmount.value;
   if (
     amount >= 0.01 &&
     currentAccount.movements.some((mov) => mov >= amount * 0.1)
@@ -207,7 +207,7 @@ btnClose.addEventListener("click", (event) => {
 
   if (
     currentAccount.username === inputCloseUsername.value &&
-    currentAccount.pin === Number(inputClosePin.value)
+    currentAccount.pin === +inputClosePin.value
   ) {
     closeAccount(currentAccount);
   }
