@@ -6,6 +6,7 @@ const labelDate = document.querySelector(".date");
 const labelSumIn = document.querySelector(".summary__value--in");
 const labelSumOut = document.querySelector(".summary__value--out");
 const labelSumInterest = document.querySelector(".summary__value--interest");
+const labelTimer = document.querySelector(".timer");
 
 const containerApp = document.querySelector(".app");
 const containerMovements = document.querySelector(".movements");
@@ -94,7 +95,7 @@ const updateUI = function (account) {
 
 const calcDisplayBalance = function (account) {
   account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${account.balance}€`;
+  labelBalance.textContent = `${account.balance.toFixed(2)}€`;
 };
 
 const updateCurrentDate = function () {
@@ -111,19 +112,19 @@ const calcDisplaySummary = function (account) {
   const sumIn = account.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `${sumIn} €`;
+  labelSumIn.textContent = `${sumIn.toFixed(2)} €`;
 
   const sumOut = account.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `${Math.abs(sumOut)} €`;
+  labelSumOut.textContent = `${Math.abs(sumOut).toFixed(2)} €`;
 
   const interest = account.movements
     .filter((mov) => mov > 0)
     .map((deposit) => (deposit * account.interestRate) / 100)
     .filter((int) => int >= 1)
     .reduce((acc, int) => acc + int, 0);
-  labelSumInterest.textContent = `${interest} €`;
+  labelSumInterest.textContent = `${interest.toFixed(2)} €`;
 };
 
 const displayMovements = function (movements) {
@@ -134,7 +135,7 @@ const displayMovements = function (movements) {
           <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-          <div class="movements__value">${mov} €</div>
+          <div class="movements__value">${mov.toFixed(2)} €</div>
         </div>`;
     containerMovements.insertAdjacentHTML("afterbegin", row);
   });
@@ -158,8 +159,8 @@ const doTransfer = function (currentAccount, receiverAccount, amount) {
     amount <= currentAccount.balance &&
     currentAccount.username !== receiverAccount.username
   ) {
-    currentAccount.movements.push(amount);
-    senderAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+    currentAccount.movements.push(-amount);
   }
   inputTransferTo.value = "";
   inputTransferAmount.value = "";
@@ -185,11 +186,8 @@ const requestLoan = function (currentAccount, amount) {
 
 btnLoan.addEventListener("click", (event) => {
   event.preventDefault();
-  const amount = +inputLoanAmount.value;
-  if (
-    amount >= 0.01 &&
-    currentAccount.movements.some((mov) => mov >= amount * 0.1)
-  )
+  const amount = Math.floor(inputLoanAmount.value);
+  if (amount > 0 && currentAccount.movements.some((mov) => mov >= amount * 0.1))
     requestLoan(currentAccount, amount);
 
   inputLoanAmount.value = "";
@@ -215,3 +213,5 @@ btnClose.addEventListener("click", (event) => {
   inputClosePin.value = "";
   hideUI();
 });
+
+
