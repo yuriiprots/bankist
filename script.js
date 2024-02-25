@@ -187,8 +187,10 @@ const requestLoan = function (currentAccount, amount) {
 btnLoan.addEventListener("click", (event) => {
   event.preventDefault();
   const amount = Math.floor(inputLoanAmount.value);
-  if (amount > 0 && currentAccount.movements.some((mov) => mov >= amount * 0.1))
-    requestLoan(currentAccount, amount);
+  const loanRequirement = currentAccount.movements.some(
+    (mov) => mov >= amount * 0.1
+  );
+  if (amount > 0 && loanRequirement) requestLoan(currentAccount, amount);
 
   inputLoanAmount.value = "";
 });
@@ -213,5 +215,3 @@ btnClose.addEventListener("click", (event) => {
   inputClosePin.value = "";
   hideUI();
 });
-
-
