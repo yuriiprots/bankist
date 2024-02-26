@@ -45,6 +45,16 @@ const account1 = {
 const account2 = {
   owner: "Sem Johanson",
   movements: [3000, 345, -1300, 4500, 2345, 1000, 300, -200],
+  movementsDates: [
+    "15/03/2023",
+    "16/03/2023",
+    "23/03/2023",
+    "12/03/2023",
+    "15/04/2023",
+    "21/05/2023",
+    "23/06/2023",
+    "07/07/2023",
+  ],
   pin: 2222,
   interestRate: 1.5,
 };
@@ -182,10 +192,21 @@ const doTransfer = function (currentAccount, receiverAccount, amount) {
   ) {
     receiverAccount.movements.push(amount);
     currentAccount.movements.push(-amount);
+
+    receiverAccount.movementsDates.push(getCurrentDate());
+    currentAccount.movementsDates.push(getCurrentDate());
   }
   inputTransferTo.value = "";
   inputTransferAmount.value = "";
   updateUI(currentAccount);
+};
+
+const getCurrentDate = function () {
+  const date = new Date();
+  const day = `${date.getDate()}`.padStart(2, 0);
+  const month = `${date.getMonth() + 1}`.padStart(2, 0);
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 btnTransfer.addEventListener("click", (event) => {
