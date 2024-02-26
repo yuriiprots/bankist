@@ -28,6 +28,16 @@ const inputClosePin = document.querySelector(".form__input--pin");
 const account1 = {
   owner: "Yurii Prots",
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  movementsDates: [
+    "12/03/2023",
+    "15/03/2023",
+    "17/03/2023",
+    "19/03/2023",
+    "20/03/2023",
+    "21/03/2023",
+    "23/03/2023",
+    "25/03/2023",
+  ],
   pin: 1111,
   interestRate: 1.2,
 };
@@ -89,7 +99,7 @@ const hideUI = () => (containerApp.style.opacity = 0);
 const updateUI = function (account) {
   updateCurrentDate();
   calcDisplayBalance(account);
-  displayMovements(account.movements);
+  displayMovements(account);
   calcDisplaySummary(account);
 };
 
@@ -127,14 +137,31 @@ const calcDisplaySummary = function (account) {
   labelSumInterest.textContent = `${interest.toFixed(2)} €`;
 };
 
-const displayMovements = function (movements) {
+const displayMovements = function (account, sort = false) {
   containerMovements.innerHTML = "";
-  movements.forEach(function (mov, i) {
+
+  let movs = account.movements;
+  let dates = account.movementsDates;
+  const movementDatePairs = account.movements.map((mov, i) => {
+    return [mov, account.movementsDates[i]];
+  });
+
+  (() => {
+    if (sort) {
+      movementDatePairs.sort((a, b) => a[0] - b[0]);
+      movs = movementDatePairs.map((pair) => pair[0]);
+      dates = movementDatePairs.map((pair) => pair[1]);
+      console.log(dates);
+    }
+  })();
+
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? "deposit" : "withdrawal";
     const row = `<div class="movements__row">
           <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
+          <div class="movements__date">${dates[i]}</div>
           <div class="movements__value">${mov.toFixed(2)} €</div>
         </div>`;
     containerMovements.insertAdjacentHTML("afterbegin", row);
@@ -142,14 +169,8 @@ const displayMovements = function (movements) {
 };
 
 let isSorted = false;
-const sortMovements = function (movements) {
-  isSorted
-    ? displayMovements(movements)
-    : displayMovements(movements.slice().sort((a, b) => a - b));
-};
-
 btnSort.addEventListener("click", () => {
-  sortMovements(currentAccount.movements);
+  displayMovements(currentAccount, !isSorted);
   isSorted = !isSorted;
 });
 
