@@ -98,7 +98,6 @@ function signIn(username, pin) {
     updateUI(currentAccount);
     if (timer) clearInterval(timer);
     timer = startLogOutTimer();
-    console.log("Login successful!");
   }
   inputLoginUsername.value = "";
   inputLoginPin.value = "";
@@ -107,7 +106,18 @@ function signIn(username, pin) {
 
 const displayWelcomeMessage = function (owner) {
   let name = owner.split(" ")[0];
-  labelWelcome.textContent = `Welcome, ${name}!`;
+
+  const now = new Date();
+  const greeting = new Map([
+    [[6, 7, 8, 9, 10], "Good morning"],
+    [[11, 12, 13, 14, 15], "Good afternoon"],
+    [[16, 17, 18, 19, 20], "Good evening"],
+    [[21, 22, 23, 0, 1, 2, 3, 4, 5], "Good night"],
+  ]);
+
+  const arr = [...greeting.keys()].find((key) => key.includes(now.getHours()));
+  const greet = greeting.get(arr);
+  labelWelcome.textContent = `${greet}, ${name}!`;
 };
 
 const displayUI = () => {
@@ -211,7 +221,6 @@ const displayMovements = function (account, sort = false) {
   containerMovements.innerHTML = "";
 
   let dates = account.movementsDates;
-  console.log(dates);
   let movs = account.movements;
 
   if (sort) {
