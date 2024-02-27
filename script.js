@@ -40,6 +40,7 @@ const account1 = {
   ],
   pin: 1111,
   interestRate: 1.2,
+  locate: "uk-UA",
 };
 
 const account2 = {
@@ -57,6 +58,7 @@ const account2 = {
   ],
   pin: 2222,
   interestRate: 1.5,
+  locate: "en-US",
 };
 
 const account3 = {
@@ -64,6 +66,7 @@ const account3 = {
   movements: [3000, 345],
   pin: 3333,
   interestRate: 2.5,
+  locate: "de-DE",
 };
 
 const accounts = [account1, account2, account3];
@@ -120,12 +123,19 @@ const calcDisplayBalance = function (account) {
 
 const updateCurrentDate = function () {
   const now = new Date();
-  const day = `${now.getDate()}`.padStart(2, 0);
-  const month = `${now.getMonth() + 1}`.padStart(2, 0);
-  const year = now.getFullYear();
-  const hour = `${now.getHours()}`.padStart(2, 0);
-  const minute = `${now.getMinutes()}`.padStart(2, 0);
-  labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minute}`;
+
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "numeric",
+  };
+
+  labelDate.textContent = new Intl.DateTimeFormat(
+    currentAccount.locate,
+    options
+  ).format(now);
 };
 
 const calcDisplaySummary = function (account) {
