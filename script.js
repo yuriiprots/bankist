@@ -29,14 +29,14 @@ const account1 = {
   owner: "Yurii Prots",
   movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
   movementsDates: [
-    "12/03/2023",
-    "15/03/2023",
-    "17/03/2023",
-    "19/03/2023",
-    "20/03/2023",
-    "21/03/2023",
-    "23/03/2023",
-    "25/03/2023",
+    "2023-01-01T21:00:00.000Z",
+    "2023-03-02T21:50:00.000Z",
+    "2023-05-05T11:24:00.000Z",
+    "2023-06-14T21:15:00.000Z",
+    "2023-07-13T21:15:00.000Z",
+    "2024-02-22T20:15:00.000Z",
+    "2024-02-23T19:15:00.000Z",
+    "2024-02-25T18:15:00.000Z",
   ],
   pin: 1111,
   interestRate: 1.2,
@@ -46,14 +46,14 @@ const account2 = {
   owner: "Sem Johanson",
   movements: [3000, 345, -1300, 4500, 2345, 1000, 300, -200],
   movementsDates: [
-    "15/03/2023",
-    "16/03/2023",
-    "23/03/2023",
-    "12/03/2023",
-    "15/04/2023",
-    "21/05/2023",
-    "23/06/2023",
-    "07/07/2023",
+    "2024-01-11T22:00:00.000Z",
+    "2024-02-23T21:50:00.000Z",
+    "2024-03-04T11:24:00.000Z",
+    "2024-04-03T22:15:00.000Z",
+    "2024-05-02T21:15:00.000Z",
+    "2024-07-01T20:15:00.000Z",
+    "2024-09-07T19:15:00.000Z",
+    "2024-11-09T18:15:00.000Z",
   ],
   pin: 2222,
   interestRate: 1.5,
@@ -115,7 +115,7 @@ const updateUI = function (account) {
 
 const calcDisplayBalance = function (account) {
   account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${account.balance.toFixed(2)}€`;
+  labelBalance.textContent = `${account.balance.toFixed(2)} €`;
 };
 
 const updateCurrentDate = function () {
@@ -147,31 +147,48 @@ const calcDisplaySummary = function (account) {
   labelSumInterest.textContent = `${interest.toFixed(2)} €`;
 };
 
+const formatMovementDate = function (date) {
+  const diffDays = Math.round(
+    Math.abs(new Date() - date) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  else {
+    const day = `${date.getDate()}`.padStart(2, 0);
+    const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+};
+
 const displayMovements = function (account, sort = false) {
   containerMovements.innerHTML = "";
 
-  let movs = account.movements;
   let dates = account.movementsDates;
-  const movementDatePairs = account.movements.map((mov, i) => {
-    return [mov, account.movementsDates[i]];
-  });
+  console.log(dates);
+  let movs = account.movements;
 
-  (() => {
-    if (sort) {
-      movementDatePairs.sort((a, b) => a[0] - b[0]);
-      movs = movementDatePairs.map((pair) => pair[0]);
-      dates = movementDatePairs.map((pair) => pair[1]);
-      console.log(dates);
-    }
-  })();
+  if (sort) {
+    const movementDatePairs = account.movements.map((mov, i) => {
+      return [mov, account.movementsDates[i]];
+    });
+    movementDatePairs.sort((a, b) => a[0] - b[0]);
+    movs = movementDatePairs.map((pair) => pair[0]);
+    dates = movementDatePairs.map((pair) => pair[1]);
+    console.log(dates);
+  }
 
   movs.forEach(function (mov, i) {
+    const displayDate = formatMovementDate(new Date(dates[i]));
+
     const type = mov > 0 ? "deposit" : "withdrawal";
     const row = `<div class="movements__row">
           <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-          <div class="movements__date">${dates[i]}</div>
+          <div class="movements__date">${displayDate}</div>
           <div class="movements__value">${mov.toFixed(2)} €</div>
         </div>`;
     containerMovements.insertAdjacentHTML("afterbegin", row);
@@ -193,20 +210,12 @@ const doTransfer = function (currentAccount, receiverAccount, amount) {
     receiverAccount.movements.push(amount);
     currentAccount.movements.push(-amount);
 
-    receiverAccount.movementsDates.push(getCurrentDate());
-    currentAccount.movementsDates.push(getCurrentDate());
+    receiverAccount.movementsDates.push(new Date().toISOString());
+    currentAccount.movementsDates.push(new Date().toISOString());
   }
   inputTransferTo.value = "";
   inputTransferAmount.value = "";
   updateUI(currentAccount);
-};
-
-const getCurrentDate = function () {
-  const date = new Date();
-  const day = `${date.getDate()}`.padStart(2, 0);
-  const month = `${date.getMonth() + 1}`.padStart(2, 0);
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
 };
 
 btnTransfer.addEventListener("click", (event) => {
@@ -223,6 +232,7 @@ btnTransfer.addEventListener("click", (event) => {
 
 const requestLoan = function (currentAccount, amount) {
   currentAccount.movements.push(amount);
+  currentAccount.movementsDates.push(new Date().toISOString());
   updateUI(currentAccount);
 };
 
