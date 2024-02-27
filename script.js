@@ -74,7 +74,7 @@ const account3 = {
 };
 
 const accounts = [account1, account2, account3];
-let currentAccount;
+let currentAccount, timer;
 
 btnLogin.addEventListener("click", (event) => {
   event.preventDefault();
@@ -93,11 +93,11 @@ const createUsernames = (function (accs) {
 
 function signIn(username, pin) {
   currentAccount = accounts.find((account) => account.username === username);
-
   if (currentAccount?.pin === pin) {
-    displayWelcomeMessage(currentAccount.owner);
     displayUI();
     updateUI(currentAccount);
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
     console.log("Login successful!");
   }
   inputLoginUsername.value = "";
@@ -110,8 +110,14 @@ const displayWelcomeMessage = function (owner) {
   labelWelcome.textContent = `Welcome, ${name}!`;
 };
 
-const displayUI = () => (containerApp.style.opacity = 1);
-const hideUI = () => (containerApp.style.opacity = 0);
+const displayUI = () => {
+  displayWelcomeMessage(currentAccount.owner);
+  containerApp.style.opacity = 1;
+};
+const hideUI = () => {
+  containerApp.style.opacity = 0;
+  labelWelcome.textContent = "Log in to get started";
+};
 
 const updateUI = function (account) {
   updateCurrentDate();
@@ -255,6 +261,9 @@ const doTransfer = function (currentAccount, receiverAccount, amount) {
   inputTransferTo.value = "";
   inputTransferAmount.value = "";
   updateUI(currentAccount);
+
+  clearInterval(timer);
+  timer = startLogOutTimer();
 };
 
 btnTransfer.addEventListener("click", (event) => {
@@ -273,6 +282,9 @@ const requestLoan = function (currentAccount, amount) {
   currentAccount.movements.push(amount);
   currentAccount.movementsDates.push(new Date().toISOString());
   updateUI(currentAccount);
+
+  clearInterval(timer);
+  timer = startLogOutTimer();
 };
 
 btnLoan.addEventListener("click", (event) => {
@@ -306,3 +318,24 @@ btnClose.addEventListener("click", (event) => {
   inputClosePin.value = "";
   hideUI();
 });
+
+const startLogOutTimer = function () {
+  let durationInSeconds = 10 * 60;
+  const updateTimer = function () {
+    const minutes = String(Math.trunc(durationInSeconds / 60)).padStart(2, "0");
+    const seconds = String(durationInSeconds % 60).padStart(2, "0");
+
+    labelTimer.textContent = `${minutes}:${seconds}`;
+
+    if (durationInSeconds === 0) {
+      clearInterval(timerInterval);
+      hideUI();
+    }
+    durationInSeconds--;
+  };
+
+  updateTimer();
+  const timerInterval = setInterval(updateTimer, 1000);
+
+  return timerInterval;
+};
