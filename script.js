@@ -74,14 +74,15 @@ const account3 = {
 };
 
 const accounts = [account1, account2, account3];
-let currentAccount, timer;
+let currentAccount = {};
+let timer = null;
 
 btnLogin.addEventListener("click", (event) => {
   event.preventDefault();
   signIn(inputLoginUsername.value, +inputLoginPin.value);
 });
 
-const createUsernames = (function (accs) {
+const createUsernames = ((accs) => {
   accs.forEach((acc) => {
     acc.username = acc.owner
       .toLowerCase()
@@ -91,7 +92,7 @@ const createUsernames = (function (accs) {
   });
 })(accounts);
 
-function signIn(username, pin) {
+const signIn = (username, pin) => {
   currentAccount = accounts.find((account) => account.username === username);
   if (currentAccount?.pin === pin) {
     displayUI();
@@ -102,9 +103,9 @@ function signIn(username, pin) {
   inputLoginUsername.value = "";
   inputLoginPin.value = "";
   inputLoginPin.blur();
-}
+};
 
-const displayWelcomeMessage = function (owner) {
+const displayWelcomeMessage = (owner) => {
   let name = owner.split(" ")[0];
 
   const now = new Date();
@@ -129,14 +130,14 @@ const hideUI = () => {
   labelWelcome.textContent = "Log in to get started";
 };
 
-const updateUI = function (account) {
+const updateUI = (account) => {
   updateCurrentDate();
   calcDisplayBalance(account);
   displayMovements(account);
   calcDisplaySummary(account);
 };
 
-const calcDisplayBalance = function (account) {
+const calcDisplayBalance = (account) => {
   account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = formatCur(
     account.balance,
@@ -145,7 +146,7 @@ const calcDisplayBalance = function (account) {
   );
 };
 
-const updateCurrentDate = function () {
+const updateCurrentDate = () => {
   const now = new Date();
 
   const options = {
@@ -162,21 +163,19 @@ const updateCurrentDate = function () {
   ).format(now);
 };
 
-const calcDisplaySummary = function (account) {
-  const sumIn = account.movements
-    .filter((mov) => mov > 0)
-    .reduce((acc, mov) => acc + mov, 0);
+const calculateSum = (movements, type) => {
+  return movements.reduce((acc, mov) => (type(mov) ? acc + mov : acc), 0);
+};
+
+const calcDisplaySummary = (account) => {
   labelSumIn.textContent = formatCur(
-    Math.abs(sumIn),
+    Math.abs(calculateSum(account.movements, (mov) => mov > 0)),
     account.locale,
     account.currency
   );
 
-  const sumOut = account.movements
-    .filter((mov) => mov < 0)
-    .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = formatCur(
-    Math.abs(sumOut),
+    Math.abs(calculateSum(account.movements, (mov) => mov < 0)),
     account.locale,
     account.currency
   );
@@ -184,8 +183,7 @@ const calcDisplaySummary = function (account) {
   const interest = account.movements
     .filter((mov) => mov > 0)
     .map((deposit) => (deposit * account.interestRate) / 100)
-    .filter((int) => int >= 1)
-    .reduce((acc, int) => acc + int, 0);
+    .reduce((acc, int) => (int >= 1 ? acc + int : acc), 0);
   labelSumInterest.textContent = formatCur(
     Math.abs(interest),
     account.locale,
@@ -193,7 +191,7 @@ const calcDisplaySummary = function (account) {
   );
 };
 
-const formatMovementDate = function (date, locale) {
+const formatMovementDate = (date, locale) => {
   const diffDays = Math.round(
     Math.abs(new Date() - date) / (1000 * 60 * 60 * 24)
   );
@@ -210,14 +208,14 @@ const formatMovementDate = function (date, locale) {
   return new Intl.DateTimeFormat(locale, options).format(date);
 };
 
-const formatCur = function (value, locale, currency) {
+const formatCur = (value, locale, currency) => {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency,
   }).format(value);
 };
 
-const displayMovements = function (account, sort = false) {
+const displayMovements = (account, sort = false) => {
   containerMovements.innerHTML = "";
 
   let dates = account.movementsDates;
@@ -228,8 +226,14 @@ const displayMovements = function (account, sort = false) {
       return [mov, account.movementsDates[i]];
     });
     movementDatePairs.sort((a, b) => a[0] - b[0]);
-    movs = movementDatePairs.map((pair) => pair[0]);
-    dates = movementDatePairs.map((pair) => pair[1]);
+
+    [movs, dates] = movementDatePairs.reduce(
+      ([movsAcc, datesAcc], [mov, date]) => [
+        movsAcc.concat(mov),
+        datesAcc.concat(date),
+      ],
+      [[], []]
+    );
   }
 
   movs.forEach(function (mov, i) {
@@ -255,7 +259,7 @@ btnSort.addEventListener("click", () => {
   isSorted = !isSorted;
 });
 
-const doTransfer = function (currentAccount, receiverAccount, amount) {
+const doTransfer = (currentAccount, receiverAccount, amount) => {
   if (
     amount >= 0.01 &&
     amount <= currentAccount.balance &&
@@ -264,8 +268,9 @@ const doTransfer = function (currentAccount, receiverAccount, amount) {
     receiverAccount.movements.push(amount);
     currentAccount.movements.push(-amount);
 
-    receiverAccount.movementsDates.push(new Date().toISOString());
-    currentAccount.movementsDates.push(new Date().toISOString());
+    const date = new Date().toISOString();
+    receiverAccount.movementsDates.push(date);
+    currentAccount.movementsDates.push(date);
   }
   inputTransferTo.value = "";
   inputTransferAmount.value = "";
@@ -287,7 +292,7 @@ btnTransfer.addEventListener("click", (event) => {
     doTransfer(currentAccount, receiverAccount, amount);
 });
 
-const requestLoan = function (currentAccount, amount) {
+const requestLoan = (currentAccount, amount) => {
   currentAccount.movements.push(amount);
   currentAccount.movementsDates.push(new Date().toISOString());
   updateUI(currentAccount);
@@ -307,12 +312,12 @@ btnLoan.addEventListener("click", (event) => {
   inputLoanAmount.value = "";
 });
 
-function closeAccount(currentAccount) {
+const closeAccount = (currentAccount) => {
   const index = accounts.findIndex(
     (acc) => acc.username === currentAccount.username
   );
   accounts.splice(index, 1);
-}
+};
 
 btnClose.addEventListener("click", (event) => {
   event.preventDefault();
@@ -328,9 +333,10 @@ btnClose.addEventListener("click", (event) => {
   hideUI();
 });
 
-const startLogOutTimer = function () {
+const startLogOutTimer = () => {
   let durationInSeconds = 10 * 60;
-  const updateTimer = function () {
+
+  const updateTimer = () => {
     const minutes = String(Math.trunc(durationInSeconds / 60)).padStart(2, "0");
     const seconds = String(durationInSeconds % 60).padStart(2, "0");
 
